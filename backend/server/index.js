@@ -13,29 +13,17 @@ const port = env.PORT || 3000;
 const io = require('socket.io')(server);
 const { generateMessage } = require('./utils/messages');
 
-var currentRoom;
 io.on('connection', connectionCallback);
 
 function connectionCallback(socket){
     console.log(chalk.blue(`connection initiated by ${socket.id}`));
-    socket.on('join', (options, callback) => {
-        currentRoom = options.organization
-        socket.join(options.organization);
-        socket.emit('message', generateMessage(options.username, 'Welcome!'))
-        socket.broadcast.to(options.organization).emit('message', generateMessage(options.username, 'has joined!'));
-        console.log(typeof callback)
-    });
-
-    socket.on('sendMessage', (options, callback) => {
-        io.to(currentRoom).emit('message', generateMessage(options.username, options.message));
-        callback('success');
-    });
+    socket.on('join', onRoomJoin(socket));
+    socket.on('sendMessage', onSendMessage(socket));
 }
 
 function onRoomJoin(socket){
     console.log(socket.id);
     return (options, callback) => {
-        currentRoom = options.organization
         socket.join(options.organization);
         socket.emit('message', generateMessage(options.username, 'Welcome!'))
         socket.broadcast.to(options.organization).emit('message', generateMessage(options.username, 'has joined!'));
@@ -46,7 +34,7 @@ function onRoomJoin(socket){
 
 function onSendMessage(socket){
     return (options, callback) => {
-        io.to(currentRoom).emit('message', generateMessage(options.username, options.message));
+        io.to(options.organization).emit('message', generateMessage(options.username, options.message));
         callback('success');
     }
 }
