@@ -35,7 +35,7 @@ for (var i  = 0; i < $userProfiles.children.length; i++){
     let index = parseInt(i);
 
     $userProfiles.children[i].querySelector('.card-title').onclick = function(e){
-        socket = startConnection('http://localhost:3000');//io('http://localhost:3000');
+        socket = connectSocket.startConnection('http://localhost:3000');//io('http://localhost:3000');
         currentUserIndex = index;
         afterConnected(socket);
     }
@@ -43,8 +43,8 @@ for (var i  = 0; i < $userProfiles.children.length; i++){
 
 function afterConnected(socket){
 
-    onMessage(socket,(message) => {
-        console.log(message);
+    connectSocket.onMessage(socket,(message) => {
+        
         const html = Mustache.render(messageTemplate, {
             username: message.username,
             message: message.text,
@@ -52,7 +52,7 @@ function afterConnected(socket){
         });
         $messages.insertAdjacentHTML('beforeend', html)
     });
-    joinChatRoom(socket, userOptions[currentUserIndex]);
+    connectSocket.joinChatRoom(socket, userOptions[currentUserIndex]);
     
     // socket.on('message', (message) => {
 
@@ -76,8 +76,7 @@ function afterConnected(socket){
                                 message: messageValue
                             };
 
-        sendChatMessage(socket,messageOptions,(status) => {
-            console.log(status);
+        connectSocket.sendChatMessage(socket,messageOptions,(status) => {
             if(status === 'success'){
                 $messageFormButton.removeAttribute('disabled');
                 $messageTextArea.value = '';
