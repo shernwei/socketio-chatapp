@@ -1,11 +1,14 @@
+const { generateMessage } = require('../server/utils/messages');
+
 function onTopicSubscribe(io, socket){
     return (options, callback)=>{
-        socket.join(options.organization,(err) => {
-            if(err) callback(err);
-            callback('Subscribe Successfully');
-        }); //after join socket.rooms will be populated
-        //console.log(socket.rooms);
-        //socket[room] = options.organization;
+            socket.join(options.organization,(err) => {
+
+                if(err) callback(err);
+                socket.broadcast.to(options.organization).emit('message',generateMessage('Admin', `Welcome ${options.username}`));
+                callback('success');
+            }); 
+
         
     }
 }
@@ -16,7 +19,7 @@ function onMultipleTopicSubscribe(io, socket){
         if(Array.isArray(options.organization)){
             socket.join(options.organization,(err) => {
                 if(err) callback(err);
-                callback('Subscribe Successfully');
+                callback('success');
             });
         }
         
@@ -24,6 +27,6 @@ function onMultipleTopicSubscribe(io, socket){
 }
 
 module.exports = {
-    onTopicSubscribe,
-    onMultipleTopicSubscribe
-}
+    onTopicSubscribe: onTopicSubscribe,
+    onMultipleTopicSubscribe: onMultipleTopicSubscribe
+};

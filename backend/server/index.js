@@ -15,6 +15,7 @@ const { generateMessage } = require('./utils/messages');
 const  { onTopicSubscribe, onMultipleTopicSubscribe } = serviceRequired('subscribe');
 const { onPublishMessage } = serviceRequired('publish');
 const { onSendMessage } = serviceRequired('message');
+const { onTopicUnsubscribe } = serviceRequired('unsubscribe'); 
 
 
 
@@ -24,17 +25,9 @@ function connectionCallback(socket){
     // console.log(chalk.blue(`connection initiated by ${socket.id}`));
     socket.on('subscribeSingle', onTopicSubscribe(io, socket));
     socket.on('subscribeMultiple', onMultipleTopicSubscribe(io, socket));
-    socket.on('publishMessage',onPublishMessage(io, socket));
+    socket.on('publishMessage', onPublishMessage(io, socket));
+    socket.on('unsubscribe', onTopicUnsubscribe(io, socket));
     socket.on('sendMessage', onSendMessage(io, socket));
-}
-
-function welcomeMessage(socket){
-
-    return (options, callback) => {
-        socket.emit('message', generateMessage(options.username, 'Welcome!'))
-        socket.broadcast.to(options.organization).emit('message', generateMessage(options.username, 'has joined!'));
-        callback('success');
-    }
 }
 
 server.listen(port, function(err){
@@ -43,5 +36,14 @@ server.listen(port, function(err){
 });
 
 function serviceRequired(file){
-    require(`./services/${file}.js`);
+    return require(`../services/${file}.js`);
 }
+
+// function welcomeMessage(socket){
+
+//     return (options, callback) => {
+//         socket.emit('message', generateMessage(options.username, 'Welcome!'))
+//         socket.broadcast.to(options.organization).emit('message', generateMessage(options.username, 'has joined!'));
+//         callback('success');
+//     }
+// }

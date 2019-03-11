@@ -1,5 +1,3 @@
-var socket;
-
 var userOptions = [
     {username: 'Andy', organization: 'Accenture'},
     {username: 'Adrian', organization: 'Accenture'},
@@ -32,32 +30,41 @@ for(var i = 0; i < userOptions.length; i++){
 
     $userProfiles.insertAdjacentHTML('beforeend', html);
 };
+
 for (var i  = 0; i < $userProfiles.children.length; i++){
-    let index = parseInt($userProfiles.children[i].children[0].children[0].innerHTML);
+    let index = parseInt(i);
+
     $userProfiles.children[i].querySelector('.card-title').onclick = function(e){
-    
-        socket = io('http://localhost:3000');
-        currentUserIndex = index
-        afterConnected();
+        socket = startConnection('http://localhost:3000');//io('http://localhost:3000');
+        currentUserIndex = index;
+        afterConnected(socket);
     }
 }
 
-function afterConnected(){
-    socket.on('message', (message) => {
+function afterConnected(socket){
 
+    onMessage(socket,(message) => {
+        console.log(message);
         const html = Mustache.render(messageTemplate, {
             username: message.username,
             message: message.text,
             createdAt: message.createdAt
         });
         $messages.insertAdjacentHTML('beforeend', html)
-    })
+    });
+    joinChatRoom(socket, userOptions[currentUserIndex]);
     
-    socket.on('connect',() => {
-        socket.emit('join', userOptions[currentUserIndex], (status) => {
-            console.log(status)
-        });
-    })
+    // socket.on('message', (message) => {
+
+    //     // this.setState({message: message})
+    //     // Redux 
+    //     const html = Mustache.render(messageTemplate, {
+    //         username: message.username,
+    //         message: message.text,
+    //         createdAt: message.createdAt
+    //     });
+    //     $messages.insertAdjacentHTML('beforeend', html)
+    // });
     
     $messageForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -68,25 +75,20 @@ function afterConnected(){
                                 ...userOptions[currentUserIndex], 
                                 message: messageValue
                             };
-    
-        socket.emit('sendMessage', messageOptions, (status) => {
-            $messageFormButton.removeAttribute('disabled');
-            $messageTextArea.value = '';
-            $messageTextArea.focus();
-        })
+
+        sendChatMessage(socket,messageOptions,(status) => {
+            console.log(status);
+            if(status === 'success'){
+                $messageFormButton.removeAttribute('disabled');
+                $messageTextArea.value = '';
+                $messageTextArea.focus();
+            }
+        });
+
+        // socket.emit('sendMessage', messageOptions, (status) => {
+        //     $messageFormButton.removeAttribute('disabled');
+        //     $messageTextArea.value = '';
+        //     $messageTextArea.focus();
+        // })
     })
-}
-
-
-
-function closeConnection(){
-    socket.disconnect();
-}
-
-
-function sendMessage(){
-    socket.emit('sendMessage', options, (status) => {
-        if(status === 'success')
-            console.log(options.username + " has sent a message");
-    }) 
 }
