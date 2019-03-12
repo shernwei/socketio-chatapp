@@ -4,13 +4,17 @@ const server = require('http').createServer();
 const env = process.env;
 const port = env.PORT || 3000;
 
-/*var ioServerOptions = {
+var ioServerOptions = {
+    /*
     serveClient: false,
     pingTimeout: 5000,
-    pingInterval: 5000,
-}; put it in a module soon*/ 
+    pingInterval: 5000,*/
+    path: '/chat',
+    transports: ['polling'],
+    allowUpgrades: false
+}; //put it in a module soon*/ 
 
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, ioServerOptions);
 const { generateMessage } = require('./utils/messages');
 const  { onTopicSubscribe, onMultipleTopicSubscribe } = serviceRequired('subscribe');
 const { onPublishMessage } = serviceRequired('publish');

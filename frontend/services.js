@@ -28,7 +28,7 @@ var connectSocket = (function(){
     
         try{
             serverEndpoint = serverEndpoint || 'http://localhost:3000';
-            socket = io(serverEndpoint);
+            socket = io(serverEndpoint, {path: '/chat'});
             return socket;
         }catch(err){
             throw new Error(err.message);
