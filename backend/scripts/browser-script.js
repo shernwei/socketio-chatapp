@@ -1,5 +1,3 @@
-
-// const io = require('socket.io-client');
 var connectSocket = (function(){
     function socketChecking(socket) {
         if (socket.constructor.name !== 'r') {
@@ -87,7 +85,6 @@ var connectSocket = (function(){
         
         socketChecking(socket);
         socket = socket.disconnect(); // will emit the disconnect event
-        console.log('connection close');
         return socket;
     }
 

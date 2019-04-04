@@ -19,6 +19,7 @@ const $userProfiles = document.getElementById('user-id')
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const userTemplate = document.querySelector('#user-template').innerHTML;
 
+var connectedStatus = false;
 
 for(var i = 0; i < userOptions.length; i++){
     userOptions[i]["idVal"] = i;
@@ -35,15 +36,20 @@ for (var i  = 0; i < $userProfiles.children.length; i++){
     let index = parseInt(i);
 
     $userProfiles.children[i].querySelector('.card-title').onclick = function(e){
-        socket = connectSocket.startConnection('http://localhost:3000');//io('http://localhost:3000');
-        currentUserIndex = index;
-        afterConnected(socket);
+        if(!connectedStatus){
+            socket = connectSocket.startConnection('http://localhost:3000');//io('http://localhost:3000');
+            connectedStatus = socket.connected;
+            currentUserIndex = index;
+            afterConnected(socket);
+        }else{
+            console.log('You have 1 user connected to the chat room');
+        }
     }
 }
 
 function afterConnected(socket){
 
-    connectSocket.onMessage(socket,(message) => {
+    connectSocket.receiveMessage(socket,(message) => {
         
         const html = Mustache.render(messageTemplate, {
             username: message.username,

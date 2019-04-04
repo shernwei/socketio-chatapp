@@ -2,8 +2,8 @@ const { generateMessage } = require('../server/utils/messages');
 
 function onTopicSubscribe(io, socket){
     return (options, callback)=>{
-            socket.join(options.organization,(err) => {
 
+            socket.join(options.organization,(err) => {
                 if(err) callback(err);
                 socket.broadcast.to(options.organization).emit('message',generateMessage('Admin', `Welcome ${options.username}`));
                 callback('success');
